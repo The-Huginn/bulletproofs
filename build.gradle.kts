@@ -2,7 +2,7 @@ import com.github.jk1.license.filter.DependencyFilter
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 
 group = "com.weavechain"
-version = "1.0.11"
+version = "1.0.11-RECOMPILED"
 
 plugins {
     java
@@ -71,17 +71,14 @@ val javadocJar: TaskProvider<Jar> by tasks.registering(Jar::class) {
 
 publishing {
     repositories {
-        maven {
-            url = uri("./build/repo")
-            name = "Maven"
-        }
+        mavenLocal()
     }
 
     publications {
         create<MavenPublication>("Maven") {
-            groupId = "com.weavechain"
+            groupId = group as String
             artifactId = "bulletproofs"
-            version = "1.0.11"
+            version = version as String
             from(components["java"])
         }
         withType<MavenPublication> {
@@ -116,12 +113,6 @@ publishing {
             }
         }
     }
-}
-
-signing {
-    useGpgCmd()
-    sign(configurations.archives.get())
-    sign(publishing.publications["Maven"])
 }
 
 tasks {

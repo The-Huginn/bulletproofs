@@ -24,7 +24,7 @@ public class Verifier extends ConstraintSystem {
 
     private final List<ECPoint> values = new ArrayList<>();
 
-    private int numVars = 0;
+    private final WrappedInteger numVars = new WrappedInteger(0);
 
     public Verifier(Transcript transcript) {
         this.transcript = transcript;
@@ -46,11 +46,11 @@ public class Verifier extends ConstraintSystem {
 
     @Override
     public LRO allocateMultiplier(Scalar left, Scalar right) {
-        Variable l = Variable.multiplierLeft(numVars);
-        Variable r = Variable.multiplierRight(numVars);
-        Variable o = Variable.multiplierOutput(numVars);
+        Variable l = Variable.multiplierLeft(numVars.getValue());
+        Variable r = Variable.multiplierRight(numVars.getValue());
+        Variable o = Variable.multiplierOutput(numVars.getValue());
 
-        numVars++;
+        numVars.increment();
 
         return new LRO(l, r, o);
     }
@@ -68,7 +68,7 @@ public class Verifier extends ConstraintSystem {
     }
 
     public VecPoly flattenedConstraints(Scalar z) {
-        int n = numVars;
+        int n = numVars.getValue();
         int m = values.size();
 
         List<Scalar> wL = new ArrayList<>(Collections.nCopies(n, BulletProofs.factory.zero()));
@@ -109,7 +109,7 @@ public class Verifier extends ConstraintSystem {
     public boolean verify(Proof proof, PedersenCommitment pedersenCommitment, BulletProofGenerators generators) {
         transcript.append("m", values.size());
 
-        int n1 = numVars;
+        int n1 = numVars.getValue();
         if (!transcript.validateAndAppend("A_I1", proof.getProof().getA_I1())) {
             return false;
         }
@@ -122,7 +122,7 @@ public class Verifier extends ConstraintSystem {
 
         randomizedConstraints();
 
-        int n = numVars;
+        int n = numVars.getValue();
         int n2 = n - n1;
         int nPadded = Utils.nextPowerOf2(n);
         int pad = nPadded - n;
@@ -287,11 +287,11 @@ public class Verifier extends ConstraintSystem {
 
     @Override
     public LRO multiply(LinearCombination left, LinearCombination right) {
-        Variable l = Variable.multiplierLeft(numVars);
-        Variable r = Variable.multiplierRight(numVars);
-        Variable o = Variable.multiplierOutput(numVars);
+        Variable l = Variable.multiplierLeft(numVars.getValue());
+        Variable r = Variable.multiplierRight(numVars.getValue());
+        Variable o = Variable.multiplierOutput(numVars.getValue());
 
-        numVars++;
+        numVars.increment();
 
         left.append(new Term(l, BulletProofs.getFactory().minus_one()));
         right.append(new Term(r, BulletProofs.getFactory().minus_one()));
